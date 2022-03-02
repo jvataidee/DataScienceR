@@ -1,0 +1,148 @@
+---
+title: "INTRODUCTION TO R"
+output: html_notebook
+by: João Ataíde
+---
+
+#Vectors, data, Matrices, subsetting
+
+```{r creating a vector}
+x =  c(2, 7, 5)
+x
+```
+
+
+```{r Creating a vector for other way}
+y = seq(from = 4, length =3, by =3)
+y
+```
+
+
+```{r Multiplication}
+x * y
+```
+
+```{r Division}
+x / y
+```
+
+```{r Exponentiation}
+x ^ y
+```
+```{r Second elemento of X}
+x[2]
+```
+
+```{r Second and Thurty element of x}
+x[2:3]
+```
+
+
+```{r Remove the element two}
+x[-2]
+```
+
+```{r Remove the elementos for onde list the indexs}
+x[-c(1,2)]
+```
+
+```{r Creating a matrix}
+# matrix( seq( num_initial, num_final), num_lines, num_columns)
+z = matrix(seq(1, 12), 4, 3)
+z
+```
+
+```{r Take the elements of the matrix}
+# z[ lines, columns]
+z[3:4, 2:3]
+```
+
+```{r Delet and cotinue vectored}
+z[, 1, drop=FALSE]
+```
+
+```{r Dimensions of matrix}
+# Lines . Columns
+dim(z)
+```
+
+```{r list vectores}
+ls()
+```
+
+```{r Remove data from the memory}
+rm(y)
+```
+```{r Liste vectores}
+ls()
+```
+
+# Generate random data, graphics
+```{r Create Randon data }
+x = runif(50)
+x
+```
+```{r  Create Normalized random data}
+y = rnorm(50)
+y
+```
+```{r Plot the Graphic}
+plot(x, y)
+```
+
+```{r Configure the graphics}
+plot(x, y, xlab = "Random Uniform", ylab = "random Normal", pch = '*', col="red")
+```
+
+```{r PLot a par of graphics}
+par(mfrow = c(2,1))
+plot(x, y)
+hist(y)
+```
+
+```{r Read data to csv}
+auto = read.csv("D:/Estudos/Stanford/Statistical Learning/dataset/Auto.csv")
+```
+
+```{r}
+names(auto)
+```
+
+
+```{r dimensão dos dados}
+dim(auto)
+```
+```{r Type of data}
+class(auto)
+```
+```{r}
+summary(auto)
+```
+
+```{r  Frist 6 elements of dataframe}
+head(auto)
+```
+
+```{r last 6 elements of dataframe}
+
+tail(auto)
+```
+
+```{r plot}
+plot(auto$cylinders, auto$mpg)
+```
+
+```{r We can use simflification name of column}
+
+plot(auto$cyl, auto$mpg)
+```
+
+```{r Dont need more to the name of data}
+attach(auto)
+search()
+plot(cylinders, mpg)
+```
+
+```{r ask for help}
+?summary()
+```
