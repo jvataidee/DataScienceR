@@ -1,0 +1,312 @@
+---
+title: "gropo01-mba-po"
+author: "João Ataíde"
+date: "2/1/2022"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+knitr::opts_knit$set(root.dir = "D:\\01 - Estudos\\03 - BsBr - MBA Pesquisa Operacional\\03 - Estatística Básica\\atividade")
+```
+
+```{r, include=FALSE}
+.libPaths(c("C:\\Users\\jv_at\\R", "C:\\Users\\jv_at\\R"))
+R_LIBS_SITE="C:\\Users\\jv_at\\R"
+```
+
+
+# Projeto Final - Análise Estatítica do ENAD 2017
+Curso Arquitetura e Urbanismo - 21
+
+```{r, include=FALSE}
+vetor_pacotes = c("readr",
+                "ggplot2",
+                "plotly",
+                "e1071",
+                "dplyr",
+                "Hmisc",
+                "DescTools",
+                "esquisse",
+                "kableExtra",
+                "gridExtra",
+                "e1071",
+                "devtools",
+                "lmtest",
+                "flexdashboard",
+                "maps",
+                "mapdata")
+```
+
+```{r, include=FALSE}
+lapply(vetor_pacotes, require, character.only = TRUE)
+```
+
+## Importacao do banco do ENADE/INEP
+
+```{r}
+enade2017 = read_csv2("MICRODADOS_ENADE_2017.txt")
+```
+
+### Seleção daas variáveis desejadas para análise
+```{r}
+microdados_enade_filtrados= enade2017 %>% dplyr::select(NT_OBJ_FG, CO_GRUPO,
+                                                        CO_REGIAO_CURSO,
+                                                        QE_I02,
+                                                        CO_TURNO_GRADUACAO)      
+```
+
+```{r}
+head(microdados_enade_filtrados)
+```
+
+### Filtrar curso de Arquitetura e Urbanismo
+```{r}
+microdados_arcurb = microdados_enade_filtrados %>% filter(CO_GRUPO==21) 
+```
+
+```{r}
+head(microdados_arcurb)
+```
+### Convertendo indice para nome da variável
+```{r}
+#Converter Região
+microdados_arcurb = microdados_arcurb %>% mutate(CO_REGIAO_CURSO = case_when( CO_REGIAO_CURSO == 1 ~ "Norte",
+                                                             CO_REGIAO_CURSO == 2 ~ "Nordeste",
+                                                             CO_REGIAO_CURSO == 3 ~ "Sudeste",
+                                                             CO_REGIAO_CURSO == 4 ~ "Sul",
+                                                             CO_REGIAO_CURSO == 5 ~ "Centro-Oeste")) 
+
+#Converter Curso
+microdados_arcurb = microdados_arcurb %>% mutate(CO_GRUPO = case_when( CO_GRUPO == 21 ~ "Arquitetura e Urbanismo"))
+
+#converter raça
+microdados_arcurb = microdados_arcurb %>% mutate(QE_I02 = case_when( 
+                                                             QE_I02 == "A" ~ "Branca",
+                                                             QE_I02 ==  "B" ~ "Preta",
+                                                             QE_I02 ==  "C" ~ "Amarela",
+                                                             QE_I02 ==  "D" ~ "Parda",
+                                                             QE_I02 ==  "E" ~ "Indígena",
+                                                             QE_I02 ==  "F" ~ "Não quero declara")) 
+
+
+#converter turno
+microdados_arcurb = microdados_arcurb %>% mutate(CO_TURNO_GRADUACAO = case_when( CO_TURNO_GRADUACAO == 1 ~ "Matutino",
+                                                             CO_TURNO_GRADUACAO ==  2 ~ "Vespertino",
+                                                             CO_TURNO_GRADUACAO ==  3 ~ "Integral",
+                                                             CO_TURNO_GRADUACAO ==  4 ~ "Noturno")) 
+```
+
+```{r}
+head(microdados_arcurb)
+```
+
+### Percentual de dados faltantes
+
+```{r}
+#Calcular porcentagem de dados Nan
+n = nrow(microdados_arcurb)
+round(colSums(is.na(microdados_arcurb))*100/n, 1)
+```
+Para as notas dos alunos temos 11.4% de dados faltantes e 8.7% para Raça, sendo esses muito proximos de 10% do dataset como um todo, realizamos somente o filtro das linhas que não possuem valor
+
+```{r}
+#Removendo  Na´S De todas As variáveis que possuem NA
+microdados_arcurb_sNA = microdados_arcurb %>% na.omit()
+```
+
+```{r}
+#Calcular porcentagem de dados Nan
+n = nrow(microdados_arcurb_sNA)
+round(colSums(is.na(microdados_arcurb_sNA ))*100/n, 2)
+```
+## Análise Descritiva
+```{r}
+describe(microdados_arcurb_sNA$QE_I02)
+```
+Fazendo a análise descritiva dos dados de Raça, nota-se que as raças que possuem maior frequência Branca, Parda, Preta, Amarela, Não Declarada e Indígena, Pontando também que não há uma proporção entre as classes estatíticas da Raça.
+
+
+```{r}
+describe(microdados_arcurb_sNA$CO_TURNO_GRADUACAO)
+```
+Nota-se também que em sua maioria dos cursos de Arquitetura e Urbanismo é Noturno, seguindo por Matutino, Integral e Vespertino.
+
+```{r}
+describe(microdados_arcurb_sNA$CO_REGIAO_CURSO)
+```
+Também foi possivel notar que a região de maior fequência é são as regiões Sudeste seguido por Sul e Nordeste, tendo então melhor frequência o Centro-oeste e Norte.
+
+```{r}
+tabe_contigencia = ftable(microdados_arcurb_sNA[c(3, 4)])
+tabe_contigencia
+```
+E sim existe uma diferença grande entre as regiões na questão do numero de alunos que realizaram a prova, assim como a raça desses, onde nas regiões Centro-oeste,Sudeste e Sul possuem uma prevalecência de pessoas da raça Branca, a região Nordeste possui um frequência relativamente proxima entre as raças Pardas e Brancas, no entanto, a Região Norte possui maior frequeência de pessoas Pardas.
+
+Nota-se também que em sua maioria o menor percentual ainda são de pessoas Indígenas e que as Raças Amarela e Preta possuem baixa frequência quando comparada com as outras.
+
+#### Análise descritiva das notas dos alunos
+
+```{r}
+microdados_arcurb_sNA %>% 
+  select(NT_OBJ_FG) %>% 
+  summarise(Quantidade=n(),
+            Minima = min(NT_OBJ_FG),
+            Maxima = max(NT_OBJ_FG),
+            Media = mean(NT_OBJ_FG),
+            Mediana = median(NT_OBJ_FG),
+            Moda=Mode(NT_OBJ_FG),
+            Coef.Varicao=sd(NT_OBJ_FG)/Media*100)
+```
+Analisando as notas brutas na parte objetiva e geral da formação. Dos alunos possuiram nota mínima foi de 0 e a máxima foi de 100, com uma média de 53.48 e Mediana de 50, a nota que mais se repetiu nessa prova foi 50 e tem um coeficiente de variação de 38.27.
+
+### Análises cruzadas
+```{r}
+names(microdados_arcurb_sNA)
+``` 
+#### Tabela de contingência
+```{r}
+tabe_contigencia = ftable(microdados_arcurb_sNA[c(4, 5)])
+tabe_contigencia
+```
+Realizando a criação de uma tabela de contingência entre as duas variáveis, Raça e Turno, podemos ver então que as Raças possuem em sua maioria maior concentração no periodo na noite, não indicando uma concentração espefífica, mas com uma possível especificção dos propios cursos sejam em sua maioria norturnos mesmo.
+
+## Comparando as médias do Turno e Raça
+```{r}
+microdados_arcurb_sNA2 = microdados_arcurb_sNA  %>%
+  select(QE_I02,CO_TURNO_GRADUACAO, NT_OBJ_FG) %>%
+  group_by(QE_I02,CO_TURNO_GRADUACAO) %>% summarise(
+                                          Quantidade=n(), 
+                                          Media = mean(NT_OBJ_FG,na.rm = T),
+                                          Mediana = median(NT_OBJ_FG,na.rm = T),
+                                          Coef.V =sd(NT_OBJ_FG,na.rm=T)/Media*100,
+                                          Amplitude=IQR(NT_OBJ_FG)) %>% arrange(desc(Mediana))
+            
+microdados_arcurb_sNA2
+```
+
+```{r}
+#Tabulação cruzada proporção
+prop.table(table(microdados_arcurb_sNA$QE_I02,microdados_arcurb_sNA$CO_TURNO_GRADUACAO))
+```
+```{r}
+#assimetria e curtose
+assimetir_curtose = microdados_arcurb_sNA %>% 
+  select(QE_I02,CO_TURNO_GRADUACAO, NT_OBJ_FG) %>% 
+  group_by(QE_I02) %>% 
+  
+  #filter(estado_civil=="Casado(a)") %>% 
+  summarise(  Quantidade=n(),
+              Media = mean(NT_OBJ_FG),
+              Mediana = median(NT_OBJ_FG),
+              CoefV=sd(NT_OBJ_FG)/Media*100,
+              Amplitude=IQR(NT_OBJ_FG),
+              Assimetria=skewness(NT_OBJ_FG),
+              Curtose=kurtosis(NT_OBJ_FG)
+  ) %>% 
+  
+  arrange(desc(CoefV))
+
+assimetir_curtose
+```
+
+```{r}
+#Histograma
+dados = microdados_arcurb_sNA
+grafico_histograma1 = ggplot(dados, aes(x=NT_OBJ_FG, fill=QE_I02)) + 
+  geom_histogram() +
+  ggtitle("Gráfico histograma da Nota por Turno e Raça") +
+  xlab("Notas") +
+  ylab("Frequência simples") +
+  facet_grid(~CO_TURNO_GRADUACAO)
+
+ggplotly(grafico_histograma1)
+
+```
+
+```{r}
+#Histograma
+dados = microdados_arcurb_sNA
+grafico_histograma1 = ggplot(dados, aes(x=NT_OBJ_FG, fill=QE_I02)) + 
+  geom_histogram() +
+  ggtitle("Gráfico histograma da Nota por Raça") +
+  xlab("Notas") +
+  ylab("Frequência simples") 
+
+ggplotly(grafico_histograma1)
+
+```
+É possível identificar com base na distribuição que existe uma maior frequência de alunos da raça branca com as notas maiores que 75, quando comparamos ainda com as outras craças essa frequência ainda se destaca mais.
+
+```{r}
+dados=microdados_arcurb_sNA
+grafico_boxplot1 = ggplot(microdados_arcurb_sNA, aes(x=QE_I02,y=NT_OBJ_FG, fill=QE_I02)) + 
+  geom_boxplot() +
+  ggtitle("Gráfico de Box-plot da Nota por Raça")+
+  xlab("Estado civil") +
+  ylab("Notas") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggplotly(grafico_boxplot1)
+```
+Quando olhamos os gráficos de caixa sobre as notas, é possível ber que a mediana de cada classe apresnetam similaridade, diferenciando somente as classes de índigêna que não tiveram nenhuma nota muito baixa, mas também não tiveram notas máximas e a classe de pessoas que não quiseram informar, essas apresentaram média acima das demais classes. 
+
+
+```{r}
+dados=microdados_arcurb_sNA
+grafico_boxplot1 = ggplot(microdados_arcurb_sNA, aes(x=CO_TURNO_GRADUACAO,y=NT_OBJ_FG, fill=CO_TURNO_GRADUACAO)) + 
+  geom_boxplot() +
+  ggtitle("Gráfico de Box-plot da Nota por Truno")+
+  xlab("Estado civil") +
+  ylab("Notas") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggplotly(grafico_boxplot1)
+```
+Analisando então notase que a mediana para cara uma dos turnos apresentam o mesmo valor, modificando somente para o turno integral o qual entende como outlier a nota zero.
+
+```{r}
+#Histograma
+dados = microdados_arcurb_sNA
+grafico_histograma1 = ggplot(dados, aes(x=NT_OBJ_FG, fill=CO_TURNO_GRADUACAO)) + 
+  geom_histogram() +
+  ggtitle("Gráfico histograma da Nota por Raça") +
+  xlab("Notas") +
+  ylab("Frequência simples") 
+
+ggplotly(grafico_histograma1)
+
+```
+Observando a distribuição das notas entre os turnos notase uma maior frequência de maiores nota (acima de 75) os turno integral, matutino e nortuno, no entanto, duas dessas se destacam sendo o integral e noturno com o integral um pouco acima. 
+
+```{r}
+microdados_ = microdados_arcurb_sNA %>% filter(QE_I02=="Preta") 
+```
+
+```{r}
+#Histograma
+dados = microdados_arcurb_sNA %>% filter(QE_I02=="Preta") 
+grafico_histograma1 = ggplot(dados, aes(x=NT_OBJ_FG, fill=CO_REGIAO_CURSO)) + 
+  geom_histogram() +
+  ggtitle("Gráfico histograma da Nota Alunos da Raça Preta por Região") +
+  xlab("Notas") +
+  ylab("Frequência simples")
+
+ggplotly(grafico_histograma1)
+
+```
+Não existe uma significate difenrença de notas quanto a frquência para pessoas pretas da região Norte e Sul.
+
+```{r}
+dados=microdados_arcurb_sNA %>% filter(QE_I02=="Preta") 
+grafico_boxplot1 = ggplot(microdados_arcurb_sNA, aes(x=CO_REGIAO_CURSO,y=NT_OBJ_FG, fill=CO_REGIAO_CURSO)) + 
+  geom_boxplot() +
+  ggtitle("Gráfico de Box-plot da Nota de Pessoas da Raça Preta por Região")+
+  xlab("Estado civil") +
+  ylab("Notas") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggplotly(grafico_boxplot1)
+```
+Mas quando comparamos a nota é possível ver que a mediana da região Sul é maior que a da região norte, no entanto, com quartil q1 bem maior indicando uma concentração de nota menores.
