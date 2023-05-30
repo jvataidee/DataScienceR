@@ -27,5 +27,3 @@ The repository contains various Jupyter notebooks with different data science pr
 - No releases published
 - No packages published
 - 100% Jupyter Notebook
-
-Please note that this repository is public and contributions are welcome.
