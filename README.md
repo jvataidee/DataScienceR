@@ -1,17 +1,31 @@
+# Data Science with R by João Ataíde
 
-<p align="center">
-  <img src="bannerr.png" >
-</p>
+João Ataíde is a Data Scientist at Imagem Esri. This repository is a collection of his works, studies, and course activities where he used the R programming language. Here, you will find both machine learning and statistical analyses.
 
-# João Ataíde
-<sub>*Cientista de Dados na Imagem Esri​</sub>
+## Background
+João has a background in R, R Markdown, RStudio.
 
-Esse é um repositório onde coloco todos os meus trabalhos, estudos e atividades de cursos onde usei linguagem de programação R, neste você vai ver tanto aprendizagem de máquina quanto análises estatíticas.
+## Contact
+- [Blog](https://joaoataide.com)
+- [LinkedIn](https://www.linkedin.com/in/jvataidee/)
+- Email: contato@joaoataide.com
 
-**Background in:** R, R Markdown, RStudio
+## Repository Content
+The repository contains various Jupyter notebooks with different data science projects using R, including:
 
-**Links:**
-* [Blog](https://www.joaoataide.com)
-* [LinkedIn](https://www.linkedin.com/in/joaoataidee/)
-* [Medium](https://medium.com/@jooataide)
+- `w1_estatistica_basica.ipynb`
+- `w2_Stanford_Classification.ipynb`
+- `w2_Stanford_introduction_to_R-checkpoint.ipynb`
+- `w2_medidas_tendencia_central.ipynb`
+- `w3_Stanford_Linear_Regression.ipynb`
+- `w3_dados_enad.ipynb`
+- `w4_Stanford_Resampling.ipynb`
+- `w6_Stanford_LinearModelSelection_Regularization.ipynb`
+- `w7_Stanford_MovingBeyondLinearity.ipynb`
 
+## Additional Information
+- No releases published
+- No packages published
+- 100% Jupyter Notebook
+
+Please note that this repository is public and contributions are welcome.
