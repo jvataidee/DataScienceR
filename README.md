@@ -1,3 +1,4 @@
+![Project Image](DSR.png)
 # Data Science with R by João Ataíde
 
 João Ataíde is a Data Scientist at Imagem Esri. This repository is a collection of his works, studies, and course activities where he used the R programming language. Here, you will find both machine learning and statistical analyses.
